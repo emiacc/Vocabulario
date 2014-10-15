@@ -6,6 +6,9 @@
 package interfaces;
 
 import clases.Indexador;
+import java.io.File;
+import java.util.LinkedList;
+import java.util.Queue;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -15,14 +18,21 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * @author Emi
  */
 public class Pantalla extends javax.swing.JFrame {
-
+    private Worker worker;
+    private static Queue cola;
     /**
      * Creates new form Pantalla
      */
     public Pantalla() {
         initComponents();
+        cola = new LinkedList();
+        worker = new Worker(jLabel1);
+        
     }
-
+    public static Object getArchivo(){
+        if(cola.isEmpty()) return null;
+        return cola.remove();
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -33,6 +43,7 @@ public class Pantalla extends javax.swing.JFrame {
     private void initComponents() {
 
         jButton1 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -43,13 +54,17 @@ public class Pantalla extends javax.swing.JFrame {
             }
         });
 
+        jLabel1.setText("jLabel1");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton1)
+                    .addComponent(jLabel1))
                 .addContainerGap(317, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -57,7 +72,9 @@ public class Pantalla extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jButton1)
-                .addContainerGap(266, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel1)
+                .addContainerGap(246, Short.MAX_VALUE))
         );
 
         pack();
@@ -68,19 +85,28 @@ public class Pantalla extends javax.swing.JFrame {
         JFileChooser chooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos de Texto", "txt");
         chooser.setFileFilter(filter);
-        chooser.showOpenDialog(this);
+        chooser.showOpenDialog(null);
+        final File archivo = chooser.getSelectedFile();
         final String directorio = chooser.getSelectedFile().getPath();
+        final String nombreArchivo = chooser.getSelectedFile().getName();
+        
         if (directorio.substring(directorio.length() - 4, directorio.length()).compareTo(".txt") != 0) {
             JOptionPane.showMessageDialog(null, " Sólo archivos de texto", " Atención ", JOptionPane.WARNING_MESSAGE);
-        } else {
-            new Thread(new Runnable() {
+        } else {    
+            cola.add(archivo);
+            if(worker.isTerminado())
+            {
+                worker = new Worker(jLabel1);
+                worker.execute();
+            }
+                /*new Thread(new Runnable() {
                 @Override
                 public void run() {
                     Indexador in = new Indexador(directorio);
                     in.indexar();
                     System.out.println(in.toString());
                 }
-            }).start();
+            }).start();*/
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -122,5 +148,6 @@ public class Pantalla extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JLabel jLabel1;
     // End of variables declaration//GEN-END:variables
 }
