@@ -5,8 +5,8 @@
  */
 package interfaces;
 
+import clases.Indexador;
 import java.io.File;
-import java.util.Queue;
 import javax.swing.JLabel;
 import javax.swing.SwingWorker;
 
@@ -31,7 +31,10 @@ public class Worker extends SwingWorker<Void, Void> {
         terminado = false;
         File archivo = (File) o;
         this.estado.setText("procesando: "+archivo.getName());
-        Thread.sleep(10000);
+        Indexador in = new Indexador(archivo.getPath());
+        in.indexar();
+        System.out.println(in.toString());        
+        //Thread.sleep(10000);
         doInBackground();
         return null;
     }

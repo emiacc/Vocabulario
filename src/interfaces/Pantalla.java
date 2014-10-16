@@ -5,7 +5,6 @@
  */
 package interfaces;
 
-import clases.Indexador;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -18,8 +17,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * @author Emi
  */
 public class Pantalla extends javax.swing.JFrame {
+
     private Worker worker;
     private static Queue cola;
+
     /**
      * Creates new form Pantalla
      */
@@ -27,12 +28,16 @@ public class Pantalla extends javax.swing.JFrame {
         initComponents();
         cola = new LinkedList();
         worker = new Worker(jLabel1);
-        
+
     }
-    public static Object getArchivo(){
-        if(cola.isEmpty()) return null;
+
+    public static Object getArchivo() {
+        if (cola.isEmpty()) {
+            return null;
+        }
         return cola.remove();
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -81,34 +86,25 @@ public class Pantalla extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        // TODO add your handling code here:        
         JFileChooser chooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos de Texto", "txt");
         chooser.setFileFilter(filter);
-        chooser.showOpenDialog(null);
-        final File archivo = chooser.getSelectedFile();
-        final String directorio = chooser.getSelectedFile().getPath();
-        final String nombreArchivo = chooser.getSelectedFile().getName();
-        
-        if (directorio.substring(directorio.length() - 4, directorio.length()).compareTo(".txt") != 0) {
-            JOptionPane.showMessageDialog(null, " Sólo archivos de texto", " Atención ", JOptionPane.WARNING_MESSAGE);
-        } else {    
-            cola.add(archivo);
-            if(worker.isTerminado())
-            {
-                worker = new Worker(jLabel1);
-                worker.execute();
-            }
-                /*new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Indexador in = new Indexador(directorio);
-                    in.indexar();
-                    System.out.println(in.toString());
+        //chooser.showOpenDialog(null);
+        if (chooser.showOpenDialog(null) != JFileChooser.CANCEL_OPTION) {
+            final File archivo = chooser.getSelectedFile();  
+            if (!archivo.getName().endsWith(".txt")) {
+                JOptionPane.showMessageDialog(null, " Sólo archivos de texto", " Atención ", JOptionPane.WARNING_MESSAGE);
+            } else {
+                // Sumo el archivo a la cola de archivos sin procesar, si el worker ya habia finalizado creo uno nuevo
+                cola.add(archivo);
+                if (worker.isTerminado()) {
+                    worker = new Worker(jLabel1);
+                    worker.execute();
                 }
-            }).start();*/
+            }
         }
-
+        
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
