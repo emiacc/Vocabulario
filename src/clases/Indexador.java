@@ -5,10 +5,10 @@
  */
 package clases;
 
+import datos.Datos;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
@@ -22,8 +22,8 @@ import java.util.regex.Pattern;
  */
 public class Indexador {
 
-    private HashMap<String, Integer> map;
-    private String directorio;
+    private final HashMap<String, Integer> map;
+    private final String directorio;
     private StringTokenizer tokens;
 
     public Indexador(String dir) {
@@ -35,8 +35,8 @@ public class Indexador {
     public String toString() {
         return map.toString();
     }
-
-    public void indexar() {
+    
+    public boolean indexar() {
         try {
             File dir = new File(directorio);
             if (dir.exists()) {
@@ -65,13 +65,12 @@ public class Indexador {
                         }
                         linea = info.readLine();
                     }
-
+                    if(Datos.getInstance().insertarTabla(map,dir.getName())) return true;
                 }
-
             }
-
         } catch (IOException e) {
-
+            return false;
         }
+        return false;
     }
 }
