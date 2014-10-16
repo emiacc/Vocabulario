@@ -103,8 +103,7 @@ public class Pantalla extends javax.swing.JFrame {
                     worker.execute();
                 }
             }
-        }
-        
+        }        
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**

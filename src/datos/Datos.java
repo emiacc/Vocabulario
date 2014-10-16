@@ -30,21 +30,39 @@ public class Datos {
         return instance;
     }
 
-    public boolean insertarTabla(HashMap map, String archivo) {
+    public boolean consultarDocumento(String archivo) {
+        Connection con = null;
+        Statement stat = null;
+        ResultSet rs = null;
         try {
-            Connection con = DriverManager.getConnection("jdbc:sqlite:DBVocabulario.s3db");
-            con.setAutoCommit(false);
-            Statement stat = con.createStatement();
-
-            //Guardar Documento
-            ResultSet rs = stat.executeQuery("select id from Documentos where nombre = '" + archivo + "';");
+            con = DriverManager.getConnection("jdbc:sqlite:DBVocabulario.s3db");
+            stat = con.createStatement();
+            rs = stat.executeQuery("select id from Documentos where nombre = '" + archivo + "';");
             if (rs.next()) {
                 System.out.println("Documento ya procesado");
-                stat.close();
-                con.commit();
-                con.close();
                 return false;
             }
+            return true;
+        } catch (SQLException ex) {
+            System.out.println("Error " + ex.getMessage());
+            return false;
+        } finally {
+            if (rs != null) try { rs.close(); } catch (SQLException e) { }
+            if (stat != null) try { stat.close(); } catch (SQLException e) { }
+            if (con != null) try {  con.commit(); con.close(); } catch (SQLException e) { }
+        }
+    }
+
+    public boolean insertarTabla(HashMap map, String archivo) {
+        Connection con = null;
+        Statement stat = null;
+        ResultSet rs = null;
+        try {
+            con = DriverManager.getConnection("jdbc:sqlite:DBVocabulario.s3db");
+            con.setAutoCommit(false);
+            stat = con.createStatement();
+
+            //Guardar Documento
             stat.executeUpdate("insert into Documentos (nombre) values ('" + archivo + "');");
 
             //Guardar Palabras
@@ -61,15 +79,14 @@ public class Datos {
                     stat.executeUpdate("insert into Palabras values ('" + e.getKey() + "'," + e.getValue() + ");");
                 }
             }
-
-            stat.close();
-            con.commit();
-            con.close();
-
+            return true;
         } catch (SQLException ex) {
             System.out.println("Error " + ex.getMessage());
             return false;
-        }
-        return true;
+        } finally {
+            if (rs != null) try { rs.close(); } catch (SQLException e) { }
+            if (stat != null) try { stat.close(); } catch (SQLException e) { }
+            if (con != null) try {  con.commit(); con.close(); } catch (SQLException e) { }
+        }        
     }
 }
