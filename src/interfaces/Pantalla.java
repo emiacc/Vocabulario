@@ -28,7 +28,6 @@ public class Pantalla extends javax.swing.JFrame {
         initComponents();
         cola = new LinkedList();
         worker = new Worker(jLabel1);
-
     }
 
     public static Object getArchivo() {
