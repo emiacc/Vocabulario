@@ -27,7 +27,7 @@ public class Pantalla extends javax.swing.JFrame {
     public Pantalla() {
         initComponents();
         cola = new LinkedList();
-        worker = new Worker(jLabel1);
+        worker = new Worker(jLabelEstado);
     }
 
     public static Object getArchivo() {
@@ -47,7 +47,8 @@ public class Pantalla extends javax.swing.JFrame {
     private void initComponents() {
 
         jButton1 = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        jLabelEstado = new javax.swing.JLabel();
+        jLabelError = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -58,7 +59,9 @@ public class Pantalla extends javax.swing.JFrame {
             }
         });
 
-        jLabel1.setText("jLabel1");
+        jLabelEstado.setText("jLabel1");
+
+        jLabelError.setText("jLabel2");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -68,7 +71,8 @@ public class Pantalla extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButton1)
-                    .addComponent(jLabel1))
+                    .addComponent(jLabelEstado)
+                    .addComponent(jLabelError))
                 .addContainerGap(317, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -77,9 +81,14 @@ public class Pantalla extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel1)
-                .addContainerGap(246, Short.MAX_VALUE))
+                .addComponent(jLabelEstado)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabelError)
+                .addContainerGap(226, Short.MAX_VALUE))
         );
+
+        jLabelEstado.getAccessibleContext().setAccessibleName("jLabelEstado");
+        jLabelError.getAccessibleContext().setAccessibleName("jLabelError");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -98,7 +107,7 @@ public class Pantalla extends javax.swing.JFrame {
                 // Sumo el archivo a la cola de archivos sin procesar, si el worker ya habia finalizado creo uno nuevo
                 cola.add(archivo);
                 if (worker.isTerminado()) {
-                    worker = new Worker(jLabel1);
+                    worker = new Worker(jLabelEstado);
                     worker.execute();
                 }
             }
@@ -142,6 +151,7 @@ public class Pantalla extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabelError;
+    private javax.swing.JLabel jLabelEstado;
     // End of variables declaration//GEN-END:variables
 }

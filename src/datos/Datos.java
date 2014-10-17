@@ -57,6 +57,7 @@ public class Datos {
         Connection con = null;
         Statement stat = null;
         ResultSet rs = null;
+        int idPalabra,idArchivo;
         try {
             con = DriverManager.getConnection("jdbc:sqlite:DBVocabulario.s3db");
             con.setAutoCommit(false);
@@ -64,20 +65,25 @@ public class Datos {
 
             //Guardar Documento
             stat.executeUpdate("insert into Documentos (nombre) values ('" + archivo + "');");
-
+            rs = stat.executeQuery("SELECT last_insert_rowid();");
+            idArchivo = rs.getInt(1);
             //Guardar Palabras
             Iterator it = map.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry e = (Map.Entry) it.next();
-                rs = stat.executeQuery("select contador from Palabras where palabra = '" + e.getKey() + "';");
+                rs = stat.executeQuery("select id,contador from Palabras where palabra = '" + e.getKey() + "';");
                 if (rs.next()) {
                     //update
-                    int cont = rs.getInt(1) + (int) e.getValue();
+                    idPalabra = rs.getInt(1);
+                    int cont = rs.getInt(2) + (int) e.getValue();
                     stat.executeUpdate("update Palabras set contador = " + cont + " where palabra = '" + e.getKey() + "';");
                 } else {
                     //insert
-                    stat.executeUpdate("insert into Palabras values ('" + e.getKey() + "'," + e.getValue() + ");");
+                    stat.executeUpdate("insert into Palabras (palabra,contador) values ('" + e.getKey() + "'," + e.getValue() + ");");
+                    rs = stat.executeQuery("SELECT last_insert_rowid();");
+                    idPalabra = rs.getInt(1);
                 }
+                stat.executeUpdate("insert into PalabrasDocumentos values ("+idPalabra+","+idArchivo+");");
             }
             return true;
         } catch (SQLException ex) {
@@ -89,4 +95,7 @@ public class Datos {
             if (con != null) try {  con.commit(); con.close(); } catch (SQLException e) { }
         }        
     }
+    
+    //FILTRO
+    // select d.nombre from Palabras p, Documentos d, PalabrasDocumentos x where x.idPalabra=p.id and x.idDocumento = d.id and p.palabra LIKE "%%"
 }

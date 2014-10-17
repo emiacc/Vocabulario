@@ -20,7 +20,7 @@ public class Worker extends SwingWorker<Void, Void> {
     private boolean terminado;
     
     public Worker(JLabel estado) {
-        this.estado = estado;
+        this.estado = estado;        
         this.terminado = true;
     }
 
@@ -32,7 +32,7 @@ public class Worker extends SwingWorker<Void, Void> {
         File archivo = (File) o;
         this.estado.setText("procesando: "+archivo.getName());
         Indexador in = new Indexador(archivo.getPath());
-        in.indexar();
+        this.estado.setText(in.indexar());
         System.out.println(in.toString());        
         //Thread.sleep(10000);
         doInBackground();
@@ -43,7 +43,7 @@ public class Worker extends SwingWorker<Void, Void> {
     protected void done() {
         estado.setIcon(null);
         terminado = true;
-        this.estado.setText("Desocupado");
+        //this.estado.setText("Desocupado");
     }    
 
     public boolean isTerminado() {

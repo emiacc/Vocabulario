@@ -36,10 +36,10 @@ public class Indexador {
         return map.toString();
     }
     
-    public boolean indexar() {
+    public String indexar() {
         try {
             File dir = new File(directorio);
-            if (!Datos.getInstance().consultarDocumento(dir.getName())) return false;
+            if (!Datos.getInstance().consultarDocumento(dir.getName())) return "Documento ya procesado";
             if (dir.exists()) {
                 try (BufferedReader info = new BufferedReader(new InputStreamReader(new FileInputStream(new File(directorio)), "ISO-8859-1"))) {
                     String linea = info.readLine();
@@ -66,12 +66,12 @@ public class Indexador {
                         }
                         linea = info.readLine();
                     }
-                    if(Datos.getInstance().insertarTabla(map,dir.getName())) return true;
+                    if(Datos.getInstance().insertarTabla(map,dir.getName())) return "Procesado Correctamente";
                 }
             }
         } catch (IOException e) {
-            return false;
+            return "Error al leer el Archivo";
         }
-        return false;
+        return "Error al leer el Archivo";
     }
 }
