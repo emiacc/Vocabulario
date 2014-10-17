@@ -39,6 +39,7 @@ public class Indexador {
     public boolean indexar() {
         try {
             File dir = new File(directorio);
+            if (!Datos.getInstance().consultarDocumento(dir.getName())) return false;
             if (dir.exists()) {
                 try (BufferedReader info = new BufferedReader(new InputStreamReader(new FileInputStream(new File(directorio)), "ISO-8859-1"))) {
                     String linea = info.readLine();
@@ -49,7 +50,7 @@ public class Indexador {
                         while (tokens.hasMoreTokens()) {
                             String palabra = tokens.nextToken().toUpperCase();
                              //Expresion regular para eliminar todos los caracteres y solo dejar letras
-                            Pattern exp = Pattern.compile("[^ÁÉÍÓÚA-Z]");
+                            Pattern exp = Pattern.compile("[^ÑÁÉÍÓÚA-Z]");
                             Matcher match = exp.matcher(palabra);
                             if (match.find()) {
                                 palabra = match.replaceAll("");
