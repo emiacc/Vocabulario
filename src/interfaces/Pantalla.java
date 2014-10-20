@@ -5,9 +5,12 @@
  */
 package interfaces;
 
+import datos.Datos;
 import java.io.File;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
+import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -20,7 +23,7 @@ public class Pantalla extends javax.swing.JFrame {
 
     private Worker worker;
     private static Queue cola;
-
+    private static DefaultListModel modelCola, modelProcesados;
     /**
      * Creates new form Pantalla
      */
@@ -28,12 +31,18 @@ public class Pantalla extends javax.swing.JFrame {
         initComponents();
         cola = new LinkedList();
         worker = new Worker(jLabelEstado);
+        modelCola = new DefaultListModel();
+        modelProcesados = new DefaultListModel();
+        listCola.setModel(modelCola);
+        listProcesados.setModel(modelProcesados);
+        llenarListaProcesados();
     }
 
     public static Object getArchivo() {
         if (cola.isEmpty()) {
             return null;
         }
+        modelCola.removeElementAt(0);
         return cola.remove();
     }
 
@@ -46,49 +55,117 @@ public class Pantalla extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jLabel1 = new javax.swing.JLabel();
+        panelBuscar = new javax.swing.JPanel();
+        txtPalabra = new javax.swing.JTextField();
+        panelIndexar = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jLabelEstado = new javax.swing.JLabel();
-        jLabelError = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        listCola = new javax.swing.JList();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        listProcesados = new javax.swing.JList();
+
+        jLabel1.setText("jLabel1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jButton1.setText("jButton1");
+        panelBuscar.setBorder(javax.swing.BorderFactory.createTitledBorder("Buscar"));
+
+        javax.swing.GroupLayout panelBuscarLayout = new javax.swing.GroupLayout(panelBuscar);
+        panelBuscar.setLayout(panelBuscarLayout);
+        panelBuscarLayout.setHorizontalGroup(
+            panelBuscarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelBuscarLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(txtPalabra, javax.swing.GroupLayout.DEFAULT_SIZE, 393, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        panelBuscarLayout.setVerticalGroup(
+            panelBuscarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelBuscarLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(txtPalabra, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        panelIndexar.setBorder(javax.swing.BorderFactory.createTitledBorder("Indexar"));
+        panelIndexar.setMaximumSize(new java.awt.Dimension(100, 32767));
+
+        jButton1.setText("Seleccionar Archivo");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
         });
 
-        jLabelEstado.setText("jLabel1");
+        jLabelEstado.setText("Estado Indexador");
 
-        jLabelError.setText("jLabel2");
+        listCola.setBorder(javax.swing.BorderFactory.createTitledBorder("Archivos en cola"));
+        listCola.setModel(new javax.swing.AbstractListModel() {
+            String[] strings = { "Item 1", "Item 2" };
+            public int getSize() { return strings.length; }
+            public Object getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane1.setViewportView(listCola);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+        listProcesados.setBorder(javax.swing.BorderFactory.createTitledBorder("Archivos Procesados"));
+        listProcesados.setModel(new javax.swing.AbstractListModel() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public Object getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane2.setViewportView(listProcesados);
+
+        javax.swing.GroupLayout panelIndexarLayout = new javax.swing.GroupLayout(panelIndexar);
+        panelIndexar.setLayout(panelIndexarLayout);
+        panelIndexarLayout.setHorizontalGroup(
+            panelIndexarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelIndexarLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton1)
-                    .addComponent(jLabelEstado)
-                    .addComponent(jLabelError))
-                .addContainerGap(317, Short.MAX_VALUE))
+                .addGroup(panelIndexarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE)
+                    .addComponent(jLabelEstado, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1)
+                    .addComponent(jScrollPane2))
+                .addContainerGap())
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+        panelIndexarLayout.setVerticalGroup(
+            panelIndexarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelIndexarLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabelEstado)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabelError)
-                .addContainerGap(226, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 151, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         jLabelEstado.getAccessibleContext().setAccessibleName("jLabelEstado");
-        jLabelError.getAccessibleContext().setAccessibleName("jLabelError");
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(panelBuscar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panelIndexar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(panelIndexar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panelBuscar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -106,6 +183,7 @@ public class Pantalla extends javax.swing.JFrame {
             } else {
                 // Sumo el archivo a la cola de archivos sin procesar, si el worker ya habia finalizado creo uno nuevo
                 cola.add(archivo);
+                modelCola.addElement(archivo.getName());
                 if (worker.isTerminado()) {
                     worker = new Worker(jLabelEstado);
                     worker.execute();
@@ -151,7 +229,24 @@ public class Pantalla extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabelError;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabelEstado;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JList listCola;
+    private javax.swing.JList listProcesados;
+    private javax.swing.JPanel panelBuscar;
+    private javax.swing.JPanel panelIndexar;
+    private javax.swing.JTextField txtPalabra;
     // End of variables declaration//GEN-END:variables
+
+    public static void llenarListaProcesados() {
+        List<String> lista = Datos.getInstance().getDocumentos();
+        if(lista == null) return;
+        modelProcesados.clear();
+        for(String s : lista){
+            modelProcesados.addElement(s);
+        }
+        
+    }
 }

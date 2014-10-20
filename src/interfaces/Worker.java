@@ -32,9 +32,9 @@ public class Worker extends SwingWorker<Void, Void> {
         File archivo = (File) o;
         this.estado.setText("procesando: "+archivo.getName());
         Indexador in = new Indexador(archivo.getPath());
+        Thread.sleep(10000);
         this.estado.setText(in.indexar());
-        System.out.println(in.toString());        
-        //Thread.sleep(10000);
+        Pantalla.llenarListaProcesados();
         doInBackground();
         return null;
     }

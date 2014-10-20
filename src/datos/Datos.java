@@ -6,8 +6,10 @@
 package datos;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,7 +31,29 @@ public class Datos {
     public static Datos getInstance() {
         return instance;
     }
-
+    public List getDocumentos(){
+        Connection con = null;
+        Statement stat = null;
+        ResultSet rs = null;
+        try {
+            con = DriverManager.getConnection("jdbc:sqlite:DBVocabulario.s3db");
+            stat = con.createStatement();
+            rs = stat.executeQuery("select nombre from Documentos;");
+            ArrayList<String> lista = new ArrayList();
+            while (rs.next()) {
+                lista.add(rs.getString(1));
+            }          
+            return lista;
+        } catch (SQLException ex) {
+            System.out.println("Error " + ex.getMessage());
+            return null;
+        } finally {
+            if (rs != null) try { rs.close(); } catch (SQLException e) { }
+            if (stat != null) try { stat.close(); } catch (SQLException e) { }
+            if (con != null) try {  con.commit(); con.close(); } catch (SQLException e) { }
+        }
+    }
+    
     public boolean consultarDocumento(String archivo) {
         Connection con = null;
         Statement stat = null;
