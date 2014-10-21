@@ -18,7 +18,6 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -261,9 +260,17 @@ public class Pantalla extends javax.swing.JFrame {
 
     private void txtPalabraKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPalabraKeyReleased
         // TODO add your handling code here:
-        String c = txtPalabra.getText();
-        //if(c.length() == 1){
-            if(c.compareTo("")==0) { c = "?"; }            
+        //si borra borro todo
+        String c = txtPalabra.getText().toUpperCase();
+        txtPalabra.setText(c);
+        if(evt.getKeyCode()==8){
+            txtPalabra.setText("");
+            c = "?";
+        }
+        if(c.length() <= 1){
+            if(c.compareTo("")==0) { c = "?"; } 
+            if(mensaje)
+                JOptionPane.showMessageDialog(this,"Al hacer doble click sobre una palabra podrá ver en los documentos en los que aparece", "Info", JOptionPane.INFORMATION_MESSAGE); 
             modeloTabla = new ModeloPalabras(Datos.getInstance().getListado(c));
             if(modeloTabla != null)tabla.setModel(modeloTabla);
             tabla.getColumnModel().getColumn(1).setPreferredWidth(10);
@@ -273,21 +280,18 @@ public class Pantalla extends javax.swing.JFrame {
             DefaultTableCellRenderer tcr = new DefaultTableCellRenderer();
             tcr.setHorizontalAlignment(SwingConstants.CENTER);
             tabla.getColumnModel().getColumn(1).setCellRenderer(tcr);
-            if(mensaje)
-                JOptionPane.showMessageDialog(this,"Al hacer doble click sobre una palabra podrá ver en los documentos en los que aparece", "Info", JOptionPane.INFORMATION_MESSAGE); 
             mensaje = false;
-        /*}
+        }
         else
         {
-            DefaultTableModel df = (DefaultTableModel) tabla.getModel();
-             for (int i = 0; i < df.getRowCount(); i++) {
-                String palabra = (String) df.getValueAt(i , 1);
-                if(!palabra.contains(c)){
-                   df.removeRow(i);
+            for (int i = modeloTabla.getRowCount()-1; i >= 0; i--) {
+                String palabra = (String) modeloTabla.getValueAt(i , 1);
+                if(palabra.indexOf(c) != 0){
+                   modeloTabla.removeRow(i);
                 }
-            }            
-            tabla.setModel(df);
-        } */
+            }
+            modeloTabla.fireTableDataChanged();
+        } 
     }//GEN-LAST:event_txtPalabraKeyReleased
 
     private void tablaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaMouseClicked
