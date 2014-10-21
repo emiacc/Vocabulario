@@ -5,15 +5,20 @@
  */
 package interfaces;
 
+import clases.ModeloPalabras;
 import datos.Datos;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -24,18 +29,23 @@ public class Pantalla extends javax.swing.JFrame {
     private Worker worker;
     private static Queue cola;
     private static DefaultListModel modelCola, modelProcesados;
+    private static ModeloPalabras modeloTabla;
+    private boolean mensaje = true;
     /**
      * Creates new form Pantalla
      */
     public Pantalla() {
         initComponents();
         cola = new LinkedList();
-        worker = new Worker(jLabelEstado);
+        worker = new Worker(jLabelEstado, txtPalabra);
         modelCola = new DefaultListModel();
         modelProcesados = new DefaultListModel();
         listCola.setModel(modelCola);
         listProcesados.setModel(modelProcesados);
-        llenarListaProcesados();
+        llenarListaProcesados();  
+        tabla.getColumnModel().getColumn(1).setPreferredWidth(10);
+        tabla.getColumnModel().getColumn(2).setPreferredWidth(5);
+        tabla.removeColumn(tabla.getColumnModel().getColumn(0));
     }
 
     public static Object getArchivo() {
@@ -58,6 +68,8 @@ public class Pantalla extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         panelBuscar = new javax.swing.JPanel();
         txtPalabra = new javax.swing.JTextField();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        tabla = new javax.swing.JTable();
         panelIndexar = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jLabelEstado = new javax.swing.JLabel();
@@ -72,13 +84,57 @@ public class Pantalla extends javax.swing.JFrame {
 
         panelBuscar.setBorder(javax.swing.BorderFactory.createTitledBorder("Buscar"));
 
+        txtPalabra.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtPalabraKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtPalabraKeyReleased(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtPalabraKeyTyped(evt);
+            }
+        });
+
+        tabla.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Id", "Palabra", "Contador"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tabla.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tablaMouseClicked(evt);
+            }
+        });
+        jScrollPane3.setViewportView(tabla);
+
         javax.swing.GroupLayout panelBuscarLayout = new javax.swing.GroupLayout(panelBuscar);
         panelBuscar.setLayout(panelBuscarLayout);
         panelBuscarLayout.setHorizontalGroup(
             panelBuscarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelBuscarLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(txtPalabra, javax.swing.GroupLayout.DEFAULT_SIZE, 393, Short.MAX_VALUE)
+                .addGroup(panelBuscarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txtPalabra)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 545, Short.MAX_VALUE))
                 .addContainerGap())
         );
         panelBuscarLayout.setVerticalGroup(
@@ -86,7 +142,9 @@ public class Pantalla extends javax.swing.JFrame {
             .addGroup(panelBuscarLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(txtPalabra, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         panelIndexar.setBorder(javax.swing.BorderFactory.createTitledBorder("Indexar"));
@@ -140,7 +198,7 @@ public class Pantalla extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 151, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -177,6 +235,7 @@ public class Pantalla extends javax.swing.JFrame {
         chooser.setFileFilter(filter);
         //chooser.showOpenDialog(null);
         if (chooser.showOpenDialog(null) != JFileChooser.CANCEL_OPTION) {
+            txtPalabra.setEnabled(false);
             final File archivo = chooser.getSelectedFile();  
             if (!archivo.getName().endsWith(".txt")) {
                 JOptionPane.showMessageDialog(null, " Sólo archivos de texto", " Atención ", JOptionPane.WARNING_MESSAGE);
@@ -185,13 +244,72 @@ public class Pantalla extends javax.swing.JFrame {
                 cola.add(archivo);
                 modelCola.addElement(archivo.getName());
                 if (worker.isTerminado()) {
-                    worker = new Worker(jLabelEstado);
+                    worker = new Worker(jLabelEstado, txtPalabra);
                     worker.execute();
                 }
             }
         }        
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void txtPalabraKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPalabraKeyPressed
+        // TODO add your handling code here:                
+    }//GEN-LAST:event_txtPalabraKeyPressed
+
+    private void txtPalabraKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPalabraKeyTyped
+        // TODO add your handling code here:        
+    }//GEN-LAST:event_txtPalabraKeyTyped
+
+    private void txtPalabraKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPalabraKeyReleased
+        // TODO add your handling code here:
+        String c = txtPalabra.getText();
+        //if(c.length() == 1){
+            if(c.compareTo("")==0) { c = "?"; }            
+            modeloTabla = new ModeloPalabras(Datos.getInstance().getListado(c));
+            if(modeloTabla != null)tabla.setModel(modeloTabla);
+            tabla.getColumnModel().getColumn(1).setPreferredWidth(10);
+            tabla.getColumnModel().getColumn(2).setPreferredWidth(5); 
+            tabla.removeColumn(tabla.getColumnModel().getColumn(0));
+            //centrar contador
+            DefaultTableCellRenderer tcr = new DefaultTableCellRenderer();
+            tcr.setHorizontalAlignment(SwingConstants.CENTER);
+            tabla.getColumnModel().getColumn(1).setCellRenderer(tcr);
+            if(mensaje)
+                JOptionPane.showMessageDialog(this,"Al hacer doble click sobre una palabra podrá ver en los documentos en los que aparece", "Info", JOptionPane.INFORMATION_MESSAGE); 
+            mensaje = false;
+        /*}
+        else
+        {
+            DefaultTableModel df = (DefaultTableModel) tabla.getModel();
+             for (int i = 0; i < df.getRowCount(); i++) {
+                String palabra = (String) df.getValueAt(i , 1);
+                if(!palabra.contains(c)){
+                   df.removeRow(i);
+                }
+            }            
+            tabla.setModel(df);
+        } */
+    }//GEN-LAST:event_txtPalabraKeyReleased
+
+    private void tablaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaMouseClicked
+        // TODO add your handling code here:
+        if (evt.getClickCount() == 2 ) {    
+            if(!txtPalabra.isEnabled()){
+                JOptionPane.showMessageDialog(this,
+                "Espere unos segundos. Se está actualiazndo la base de datos",
+                "Aguarde", JOptionPane.INFORMATION_MESSAGE);  
+                return;
+            }
+            int id = (int) modeloTabla.getValueAt(tabla.getSelectedRow(), 0);
+            List<String> lista = Datos.getInstance().getDocumentos(id);
+            if(lista == null) return;
+            String r = "";
+            for(String s : lista){ r+=s+"<br>"; } 
+            JOptionPane.showMessageDialog(this,
+            "<html><body><p style='width: 200px;'>" + r + "</body></html>",
+            "Documentos en los que aparece", JOptionPane.INFORMATION_MESSAGE);           
+        }
+    }//GEN-LAST:event_tablaMouseClicked
+     
     /**
      * @param args the command line arguments
      */
@@ -233,10 +351,12 @@ public class Pantalla extends javax.swing.JFrame {
     private javax.swing.JLabel jLabelEstado;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JList listCola;
     private javax.swing.JList listProcesados;
     private javax.swing.JPanel panelBuscar;
     private javax.swing.JPanel panelIndexar;
+    private javax.swing.JTable tabla;
     private javax.swing.JTextField txtPalabra;
     // End of variables declaration//GEN-END:variables
 

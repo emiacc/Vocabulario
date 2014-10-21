@@ -5,6 +5,7 @@
  */
 package datos;
 
+import clases.Palabra;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,6 +40,29 @@ public class Datos {
             con = DriverManager.getConnection("jdbc:sqlite:DBVocabulario.s3db");
             stat = con.createStatement();
             rs = stat.executeQuery("select nombre from Documentos;");
+            ArrayList<String> lista = new ArrayList();
+            while (rs.next()) {
+                lista.add(rs.getString(1));
+            }          
+            return lista;
+        } catch (SQLException ex) {
+            System.out.println("Error " + ex.getMessage());
+            return null;
+        } finally {
+            if (rs != null) try { rs.close(); } catch (SQLException e) { }
+            if (stat != null) try { stat.close(); } catch (SQLException e) { }
+            if (con != null) try {  con.commit(); con.close(); } catch (SQLException e) { }
+        }
+    }
+    
+    public List getDocumentos(int id){
+        Connection con = null;
+        Statement stat = null;
+        ResultSet rs = null;
+        try {
+            con = DriverManager.getConnection("jdbc:sqlite:DBVocabulario.s3db");
+            stat = con.createStatement();
+            rs = stat.executeQuery("select d.nombre from Documentos d, PalabrasDocumentos p where d.id = p.idDocumento and p.idPalabra = "+id+";");
             ArrayList<String> lista = new ArrayList();
             while (rs.next()) {
                 lista.add(rs.getString(1));
@@ -120,6 +144,27 @@ public class Datos {
         }        
     }
     
-    //FILTRO
-    // select d.nombre from Palabras p, Documentos d, PalabrasDocumentos x where x.idPalabra=p.id and x.idDocumento = d.id and p.palabra LIKE "%%"
+    public List<Palabra> getListado(String c){
+        Connection con = null;
+        Statement stat = null;
+        ResultSet rs = null;
+        ResultSet rs2 = null;
+        List<Palabra> lista = new ArrayList<>();
+        try {
+            con = DriverManager.getConnection("jdbc:sqlite:DBVocabulario.s3db");
+            stat = con.createStatement();
+            rs = stat.executeQuery("select id,palabra, contador from Palabras where palabra LIKE '"+c+"%';");
+            while(rs.next()){
+                 lista.add(new Palabra(rs.getInt(1),rs.getString(2),rs.getInt(3)));                            
+            }
+            return lista;
+        } catch (SQLException ex) {
+            System.out.println("Error " + ex.getMessage());
+            return null;
+        } finally {
+            if (rs != null) try { rs.close(); } catch (SQLException e) { }
+            if (stat != null) try { stat.close(); } catch (SQLException e) { }
+            if (con != null) try {  con.commit(); con.close(); } catch (SQLException e) { }
+        }        
+    }   
 }

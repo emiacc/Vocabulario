@@ -8,6 +8,7 @@ package interfaces;
 import clases.Indexador;
 import java.io.File;
 import javax.swing.JLabel;
+import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 
 /**
@@ -17,10 +18,12 @@ import javax.swing.SwingWorker;
 public class Worker extends SwingWorker<Void, Void> {
 
     private final JLabel estado;
+    private final JTextField buscador;
     private boolean terminado;
     
-    public Worker(JLabel estado) {
+    public Worker(JLabel estado, JTextField buscador) {
         this.estado = estado;        
+        this.buscador = buscador;        
         this.terminado = true;
     }
 
@@ -32,7 +35,7 @@ public class Worker extends SwingWorker<Void, Void> {
         File archivo = (File) o;
         this.estado.setText("procesando: "+archivo.getName());
         Indexador in = new Indexador(archivo.getPath());
-        Thread.sleep(10000);
+        //Thread.sleep(10000);
         this.estado.setText(in.indexar());
         Pantalla.llenarListaProcesados();
         doInBackground();
@@ -43,6 +46,7 @@ public class Worker extends SwingWorker<Void, Void> {
     protected void done() {
         estado.setIcon(null);
         terminado = true;
+        buscador.setEnabled(true);
         //this.estado.setText("Desocupado");
     }    
 
