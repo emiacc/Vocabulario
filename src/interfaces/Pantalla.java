@@ -8,7 +8,6 @@ package interfaces;
 import clases.ModeloPalabras;
 import datos.Datos;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -18,6 +17,8 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 /**
  *
@@ -30,6 +31,8 @@ public class Pantalla extends javax.swing.JFrame {
     private static DefaultListModel modelCola, modelProcesados;
     private static ModeloPalabras modeloTabla;
     private boolean mensaje = true;
+    private boolean filtrar = false;
+
     /**
      * Creates new form Pantalla
      */
@@ -41,10 +44,11 @@ public class Pantalla extends javax.swing.JFrame {
         modelProcesados = new DefaultListModel();
         listCola.setModel(modelCola);
         listProcesados.setModel(modelProcesados);
-        llenarListaProcesados();  
+        llenarListaProcesados();
         tabla.getColumnModel().getColumn(1).setPreferredWidth(10);
         tabla.getColumnModel().getColumn(2).setPreferredWidth(5);
         tabla.removeColumn(tabla.getColumnModel().getColumn(0));
+
     }
 
     public static Object getArchivo() {
@@ -69,6 +73,7 @@ public class Pantalla extends javax.swing.JFrame {
         txtPalabra = new javax.swing.JTextField();
         jScrollPane3 = new javax.swing.JScrollPane();
         tabla = new javax.swing.JTable();
+        botonBuscar = new javax.swing.JButton();
         panelIndexar = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jLabelEstado = new javax.swing.JLabel();
@@ -125,6 +130,13 @@ public class Pantalla extends javax.swing.JFrame {
         });
         jScrollPane3.setViewportView(tabla);
 
+        botonBuscar.setText("Buscar");
+        botonBuscar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonBuscarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelBuscarLayout = new javax.swing.GroupLayout(panelBuscar);
         panelBuscar.setLayout(panelBuscarLayout);
         panelBuscarLayout.setHorizontalGroup(
@@ -132,15 +144,20 @@ public class Pantalla extends javax.swing.JFrame {
             .addGroup(panelBuscarLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelBuscarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtPalabra)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 545, Short.MAX_VALUE))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 545, Short.MAX_VALUE)
+                    .addGroup(panelBuscarLayout.createSequentialGroup()
+                        .addComponent(txtPalabra)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(botonBuscar)))
                 .addContainerGap())
         );
         panelBuscarLayout.setVerticalGroup(
             panelBuscarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelBuscarLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(txtPalabra, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(panelBuscarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtPalabra, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(botonBuscar))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addContainerGap())
@@ -235,7 +252,7 @@ public class Pantalla extends javax.swing.JFrame {
         //chooser.showOpenDialog(null);
         if (chooser.showOpenDialog(null) != JFileChooser.CANCEL_OPTION) {
             txtPalabra.setEnabled(false);
-            final File archivo = chooser.getSelectedFile();  
+            final File archivo = chooser.getSelectedFile();
             if (!archivo.getName().endsWith(".txt")) {
                 JOptionPane.showMessageDialog(null, " Sólo archivos de texto", " Atención ", JOptionPane.WARNING_MESSAGE);
             } else {
@@ -247,73 +264,92 @@ public class Pantalla extends javax.swing.JFrame {
                     worker.execute();
                 }
             }
-        }        
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void txtPalabraKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPalabraKeyPressed
-        // TODO add your handling code here:                
+        // TODO add your handling code here:  
+        if (evt.getExtendedKeyCode() == 8) {
+            txtPalabra.setText("");
+            if (!mensaje) {
+                this.botonBuscarActionPerformed(null);
+                filtrar = false;
+            }
+        } else if (evt.getExtendedKeyCode() == 10) {
+            this.botonBuscarActionPerformed(null);
+        }
     }//GEN-LAST:event_txtPalabraKeyPressed
 
     private void txtPalabraKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPalabraKeyTyped
-        // TODO add your handling code here:        
+        // TODO add your handling code here:       
     }//GEN-LAST:event_txtPalabraKeyTyped
 
     private void txtPalabraKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPalabraKeyReleased
         // TODO add your handling code here:
-        //si borra borro todo
         String c = txtPalabra.getText().toUpperCase();
         txtPalabra.setText(c);
-        if(evt.getKeyCode()==8){
-            txtPalabra.setText("");
-            c = "?";
-        }
-        if(c.length() <= 1){
-            if(c.compareTo("")==0) { c = "?"; } 
-            if(mensaje)
-                JOptionPane.showMessageDialog(this,"Al hacer doble click sobre una palabra podrá ver en los documentos en los que aparece", "Info", JOptionPane.INFORMATION_MESSAGE); 
-            modeloTabla = new ModeloPalabras(Datos.getInstance().getListado(c));
-            if(modeloTabla != null)tabla.setModel(modeloTabla);
-            tabla.getColumnModel().getColumn(1).setPreferredWidth(10);
-            tabla.getColumnModel().getColumn(2).setPreferredWidth(5); 
-            tabla.removeColumn(tabla.getColumnModel().getColumn(0));
-            //centrar contador
-            DefaultTableCellRenderer tcr = new DefaultTableCellRenderer();
-            tcr.setHorizontalAlignment(SwingConstants.CENTER);
-            tabla.getColumnModel().getColumn(1).setCellRenderer(tcr);
-            mensaje = false;
-        }
-        else
-        {
-            for (int i = modeloTabla.getRowCount()-1; i >= 0; i--) {
-                String palabra = (String) modeloTabla.getValueAt(i , 1);
-                if(palabra.indexOf(c) != 0){
-                   modeloTabla.removeRow(i);
+        if (filtrar) {
+            for (int i = modeloTabla.getRowCount() - 1; i >= 0; i--) {
+                String palabra = (String) modeloTabla.getValueAt(i, 1);
+                if (palabra.indexOf(c) != 0) {
+                    modeloTabla.removeRow(i);
                 }
             }
             modeloTabla.fireTableDataChanged();
-        } 
+        }
     }//GEN-LAST:event_txtPalabraKeyReleased
 
     private void tablaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaMouseClicked
         // TODO add your handling code here:
-        if (evt.getClickCount() == 2 ) {    
-            if(!txtPalabra.isEnabled()){
+        if (evt.getClickCount() == 2) {
+            if (!txtPalabra.isEnabled()) {
                 JOptionPane.showMessageDialog(this,
-                "Espere unos segundos. Se está actualiazndo la base de datos",
-                "Aguarde", JOptionPane.INFORMATION_MESSAGE);  
+                        "Espere unos segundos. Se está actualiazndo la base de datos",
+                        "Aguarde", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
             int id = (int) modeloTabla.getValueAt(tabla.getSelectedRow(), 0);
             List<String> lista = Datos.getInstance().getDocumentos(id);
-            if(lista == null) return;
+            if (lista == null) {
+                return;
+            }
             String r = "";
-            for(String s : lista){ r+=s+"<br>"; } 
+            for (String s : lista) {
+                r += s + "<br>";
+            }
             JOptionPane.showMessageDialog(this,
-            "<html><body><p style='width: 200px;'>" + r + "</body></html>",
-            "Documentos en los que aparece", JOptionPane.INFORMATION_MESSAGE);           
+                    "<html><body><p style='width: 200px;'>" + r + "</body></html>",
+                    "Documentos en los que aparece", JOptionPane.INFORMATION_MESSAGE);
         }
     }//GEN-LAST:event_tablaMouseClicked
-     
+
+    private void botonBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonBuscarActionPerformed
+        // TODO add your handling code here:
+        String c = txtPalabra.getText().toUpperCase();
+        if (c.compareTo("") == 0) {
+            c = "?";
+        }
+        modeloTabla = new ModeloPalabras(Datos.getInstance().getListado(c));
+        if (modeloTabla != null) {
+            tabla.setModel(modeloTabla);
+        }
+        tabla.getColumnModel().getColumn(1).setPreferredWidth(10);
+        tabla.getColumnModel().getColumn(2).setPreferredWidth(5);
+        tabla.removeColumn(tabla.getColumnModel().getColumn(0));
+        //centrar contador
+        DefaultTableCellRenderer tcr = new DefaultTableCellRenderer();
+        tcr.setHorizontalAlignment(SwingConstants.CENTER);
+        tabla.getColumnModel().getColumn(1).setCellRenderer(tcr);
+        if (mensaje) {
+            JOptionPane.showMessageDialog(this, "Al hacer doble click sobre una palabra podrá ver en los documentos en los que aparece", "Info", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Puede seguir escribiendo la palabra para filrtar la busqueda", "Info", JOptionPane.INFORMATION_MESSAGE);
+        }
+        filtrar = true;
+        mensaje = false;
+        TableRowSorter<TableModel> elQueOrdena = new TableRowSorter<TableModel>(modeloTabla);
+        tabla.setRowSorter(elQueOrdena);
+    }//GEN-LAST:event_botonBuscarActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -350,6 +386,7 @@ public class Pantalla extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton botonBuscar;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabelEstado;
@@ -366,11 +403,13 @@ public class Pantalla extends javax.swing.JFrame {
 
     public static void llenarListaProcesados() {
         List<String> lista = Datos.getInstance().getDocumentos();
-        if(lista == null) return;
+        if (lista == null) {
+            return;
+        }
         modelProcesados.clear();
-        for(String s : lista){
+        for (String s : lista) {
             modelProcesados.addElement(s);
         }
-        
+
     }
 }
