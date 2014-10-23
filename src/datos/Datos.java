@@ -87,7 +87,6 @@ public class Datos {
             stat = con.createStatement();
             rs = stat.executeQuery("select id from Documentos where nombre = '" + archivo + "';");
             if (rs.next()) {
-                System.out.println("Documento ya procesado");
                 return false;
             }
             return true;

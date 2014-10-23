@@ -63,4 +63,8 @@ public class ModeloPalabras extends AbstractTableModel{
     public void removeRow(int i){
         lista.remove(i);
     }    
+
+    public void removeAllRows() {
+        lista.clear();
+    }
 }

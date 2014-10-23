@@ -45,9 +45,10 @@ public class Pantalla extends javax.swing.JFrame {
         listCola.setModel(modelCola);
         listProcesados.setModel(modelProcesados);
         llenarListaProcesados();
-        tabla.getColumnModel().getColumn(1).setPreferredWidth(10);
-        tabla.getColumnModel().getColumn(2).setPreferredWidth(5);
-        tabla.removeColumn(tabla.getColumnModel().getColumn(0));
+        tabla.getColumnModel().getColumn(0).setMaxWidth(0);
+        tabla.getColumnModel().getColumn(1).setPreferredWidth(1000);
+        tabla.getColumnModel().getColumn(2).setPreferredWidth(500);
+        //tabla.removeColumn(tabla.getColumnModel().getColumn(0));
 
     }
 
@@ -275,15 +276,12 @@ public class Pantalla extends javax.swing.JFrame {
         if (evt.getExtendedKeyCode() == 8) {
             txtPalabra.setText("");
             if (!mensaje) {
-                this.botonBuscarActionPerformed(null);
+                modeloTabla.removeAllRows();
+                modeloTabla.fireTableDataChanged();
                 filtrar = false;
             }
-        } else if (evt.getExtendedKeyCode() == 10) {
-            if (txtPalabra.getText().compareTo("") == 0) {
-                JOptionPane.showMessageDialog(this, "Escriba algo...", "Mensaje", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                this.botonBuscarActionPerformed(null);
-            }
+        } else if (evt.getExtendedKeyCode() == 10 && botonBuscar.isEnabled()==true) {
+            this.botonBuscarActionPerformed(null);            
         }
     }//GEN-LAST:event_txtPalabraKeyPressed
 
@@ -309,11 +307,11 @@ public class Pantalla extends javax.swing.JFrame {
     private void tablaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaMouseClicked
         // TODO add your handling code here:
         if (evt.getClickCount() == 2) {
-            if (!txtPalabra.isEnabled()) {
+            if (!botonBuscar.isEnabled()) {
                 JOptionPane.showMessageDialog(this, "Espere unos segundos. Se está actualiazndo la base de datos", "Aguarde", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
-            int id = (int) modeloTabla.getValueAt(tabla.getSelectedRow(), 0);
+            int id = (int) tabla.getValueAt(tabla.getSelectedRow(), 0);
             List<String> lista = Datos.getInstance().getDocumentos(id);
             if (lista == null) {
                 return;
@@ -331,20 +329,18 @@ public class Pantalla extends javax.swing.JFrame {
     private void botonBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonBuscarActionPerformed
         // TODO add your handling code here:
         String c = txtPalabra.getText().toUpperCase();
-        if (c.compareTo("") == 0) {
-            c = "?";
-        }
         modeloTabla = new ModeloPalabras(Datos.getInstance().getListado(c));
         if (modeloTabla != null) {
             tabla.setModel(modeloTabla);
         }
-        tabla.getColumnModel().getColumn(1).setPreferredWidth(10);
-        tabla.getColumnModel().getColumn(2).setPreferredWidth(5);
-        tabla.removeColumn(tabla.getColumnModel().getColumn(0));
+        tabla.getColumnModel().getColumn(0).setMaxWidth(0);
+        tabla.getColumnModel().getColumn(1).setPreferredWidth(1000);
+        tabla.getColumnModel().getColumn(2).setPreferredWidth(500);
+        //tabla.removeColumn(tabla.getColumnModel().getColumn(0));
         //centrar contador
         DefaultTableCellRenderer tcr = new DefaultTableCellRenderer();
         tcr.setHorizontalAlignment(SwingConstants.CENTER);
-        tabla.getColumnModel().getColumn(1).setCellRenderer(tcr);
+        tabla.getColumnModel().getColumn(2).setCellRenderer(tcr);
         if (mensaje) {
             JOptionPane.showMessageDialog(this, "Al hacer doble click sobre una palabra podrá ver en los documentos en los que aparece.\nPuede seguir escribiendo la palabra para filrtar la busqueda.\nPuede ordenar la búsqueda haciendo click en la cabecera ed la columna.", "Info", JOptionPane.INFORMATION_MESSAGE);
         }
