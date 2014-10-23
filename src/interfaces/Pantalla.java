@@ -39,7 +39,7 @@ public class Pantalla extends javax.swing.JFrame {
     public Pantalla() {
         initComponents();
         cola = new LinkedList();
-        worker = new Worker(jLabelEstado, txtPalabra);
+        worker = new Worker(jLabelEstado, botonBuscar);
         modelCola = new DefaultListModel();
         modelProcesados = new DefaultListModel();
         listCola.setModel(modelCola);
@@ -251,16 +251,19 @@ public class Pantalla extends javax.swing.JFrame {
         chooser.setFileFilter(filter);
         //chooser.showOpenDialog(null);
         if (chooser.showOpenDialog(null) != JFileChooser.CANCEL_OPTION) {
-            txtPalabra.setEnabled(false);
+            botonBuscar.setEnabled(false);
             final File archivo = chooser.getSelectedFile();
             if (!archivo.getName().endsWith(".txt")) {
-                JOptionPane.showMessageDialog(null, " Sólo archivos de texto", " Atención ", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, " Sólo archivos de texto", " Atención ", JOptionPane.WARNING_MESSAGE);
+                if (worker.isTerminado()) {
+                    botonBuscar.setEnabled(true);
+                }
             } else {
                 // Sumo el archivo a la cola de archivos sin procesar, si el worker ya habia finalizado creo uno nuevo
                 cola.add(archivo);
                 modelCola.addElement(archivo.getName());
                 if (worker.isTerminado()) {
-                    worker = new Worker(jLabelEstado, txtPalabra);
+                    worker = new Worker(jLabelEstado, botonBuscar);
                     worker.execute();
                 }
             }
@@ -276,7 +279,11 @@ public class Pantalla extends javax.swing.JFrame {
                 filtrar = false;
             }
         } else if (evt.getExtendedKeyCode() == 10) {
-            this.botonBuscarActionPerformed(null);
+            if (txtPalabra.getText().compareTo("") == 0) {
+                JOptionPane.showMessageDialog(this, "Escriba algo...", "Mensaje", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                this.botonBuscarActionPerformed(null);
+            }
         }
     }//GEN-LAST:event_txtPalabraKeyPressed
 
@@ -303,9 +310,7 @@ public class Pantalla extends javax.swing.JFrame {
         // TODO add your handling code here:
         if (evt.getClickCount() == 2) {
             if (!txtPalabra.isEnabled()) {
-                JOptionPane.showMessageDialog(this,
-                        "Espere unos segundos. Se está actualiazndo la base de datos",
-                        "Aguarde", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Espere unos segundos. Se está actualiazndo la base de datos", "Aguarde", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
             int id = (int) modeloTabla.getValueAt(tabla.getSelectedRow(), 0);
@@ -341,8 +346,7 @@ public class Pantalla extends javax.swing.JFrame {
         tcr.setHorizontalAlignment(SwingConstants.CENTER);
         tabla.getColumnModel().getColumn(1).setCellRenderer(tcr);
         if (mensaje) {
-            JOptionPane.showMessageDialog(this, "Al hacer doble click sobre una palabra podrá ver en los documentos en los que aparece", "Info", JOptionPane.INFORMATION_MESSAGE);
-            JOptionPane.showMessageDialog(this, "Puede seguir escribiendo la palabra para filrtar la busqueda", "Info", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Al hacer doble click sobre una palabra podrá ver en los documentos en los que aparece.\nPuede seguir escribiendo la palabra para filrtar la busqueda.\nPuede ordenar la búsqueda haciendo click en la cabecera ed la columna.", "Info", JOptionPane.INFORMATION_MESSAGE);
         }
         filtrar = true;
         mensaje = false;

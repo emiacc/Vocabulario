@@ -7,8 +7,8 @@ package interfaces;
 
 import clases.Indexador;
 import java.io.File;
+import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 
 /**
@@ -18,12 +18,12 @@ import javax.swing.SwingWorker;
 public class Worker extends SwingWorker<Void, Void> {
 
     private final JLabel estado;
-    private final JTextField buscador;
+    private final JButton buscar;
     private boolean terminado;
     
-    public Worker(JLabel estado, JTextField buscador) {
+    public Worker(JLabel estado, JButton buscar) {
         this.estado = estado;        
-        this.buscador = buscador;        
+        this.buscar = buscar;        
         this.terminado = true;
     }
 
@@ -46,7 +46,7 @@ public class Worker extends SwingWorker<Void, Void> {
     protected void done() {
         estado.setIcon(null);
         terminado = true;
-        buscador.setEnabled(true);
+        buscar.setEnabled(true);
         //this.estado.setText("Desocupado");
     }    
 

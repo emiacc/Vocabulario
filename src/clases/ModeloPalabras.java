@@ -14,7 +14,7 @@ import javax.swing.table.AbstractTableModel;
  * @author Emi
  */
 public class ModeloPalabras extends AbstractTableModel{
-    private List<Palabra> lista;
+    private final List<Palabra> lista;
 
     public ModeloPalabras(List<Palabra> lista) {
         this.lista = lista;
